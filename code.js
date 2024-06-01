@@ -16,6 +16,8 @@ class TicTacToeGame{
         // 
         this.currentPlayer = PLAYER_ONE_SYMBOL
         this.mode = VS_AI
+        this.xscore = 0
+        this.oscore = 0
     }
 
     reset(){
@@ -83,10 +85,10 @@ class TicTacToeGame{
         let cellElement = cellElements[index]
         if (cellElement.innerText != this.board[index]){
             cellElement.innerText = this.board[index]
-            if (cellElement.innerText == PLAYER_ONE_SYMBOL)
-                cellElement.classList.add('xcolor')
-            else 
-                cellElement.classList.add('ocolor')
+            // if (cellElement.innerText == PLAYER_ONE_SYMBOL)
+            //     cellElement.classList.add('xcolor')
+            // else 
+            //     cellElement.classList.add('ocolor')
         }
     }
 
@@ -165,3 +167,8 @@ btn1 = document.getElementById('btn1')
 btn2 = document.getElementById('btn2')
 btn1.addEventListener('click', () => game.changeMode(VS_AI))
 btn2.addEventListener('click', () => game.changeMode(VS_FRIEND))
+
+xscore = document.getElementById('xscore')
+oscore = document.getElementById('oscore')
+xscore.innerHTML = game.xscore
+oscore.innerHTML = game.oscore
