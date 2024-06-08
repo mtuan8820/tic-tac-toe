@@ -18,18 +18,19 @@ class Node{
     }
 }
 
-function generateTree(node, depth){
-    if (depth == 0) return;
+function generateTree(node, depth = 0){
+    if (depth <= 0) return;
     node.generateChildren()
     node.children.forEach(child => generateTree(child, depth-1))
     return
 }
 
 function isTerminalNode(node){
-    return False
+    return false
 }
 
 function countOccurrences(array){
+    // count occurrences of X, O, null in board
     let numX = 0, numO = 0, numNULL = 0
     array.forEach(item =>{
         if (item == 'X') numX++;
@@ -40,7 +41,6 @@ function countOccurrences(array){
 }
 
 function caculateHeuristicVal(node){
-    
     let val = 0
     function updateVal(array){
         countOccur = countOccurrences(array)
@@ -52,6 +52,8 @@ function caculateHeuristicVal(node){
         else if ((numX == 2) && numNULL == 1) val-=10
         else if ((numO == 2) && numNULL == 1) val+=10
         else if ((numX == 1) && numNULL == 2) val-=1
+        else if ((numO == 1) && numNULL == 2) val+=1
+
     }
     // check column
     for (let i = 0; i < 3; i++){
@@ -72,35 +74,79 @@ function caculateHeuristicVal(node){
     return val
 }
 
-function minimax(node, depth, maximizingPlayer){
+function minimax(node, depth=0){
     
-    if ((depth ==0 ) || (isTerminalNode(node)))
-        return caculateHeuristicVal(node)
-    if (maximizingPlayer){
-        let value = Number.NEGATIVE_INFINITY 
-        node.chilren.forEach(child => {
-            value = Math.max(value, minimax(child, depth-1, false))
-        });
+    // if ((depth == 0 ) || (isTerminalNode(node)))
+    //     return caculateHeuristicVal(node)
+    if (depth <= 0 ) {
+        let value = caculateHeuristicVal(node)
+        node.heuristicValue = value
+        return value
+    }
+        
+    else if (node.maximizingPlayer == false){
+
+        var value = -99
+        node.children?.forEach((child) => {
+            var a = minimax(child, depth-1, false)
+            value = Math.max(value, a)
+        })
+        node.heuristicValue = value
         return value
     }
     else {
-        let value = Number.POSITIVE_INFINITY
-        node.chilren.forEach(child => {
-            value = Math.min(value, minimax(child, depth-1, true))
+        var value = 99
+        node.children?.forEach(child => {
+            var a = minimax(child, depth-1, true)
+            value = Math.min(value, a)
         });
+        node.heuristicValue = value
         return value
     }
 }
 
-let board = []
-var n = 9
-while (n--){
-    board[n] = ""
+const PFXs = { true: { true: "     ", false: "┃    " }, false: { true: "┗━━━ ", false: "┣━━━ " } };
+const printTree = (t, levels = []) => {
+  const pfx = (p, i) => PFXs[i < levels.length - 1][p];
+  console.log(`${levels.map(pfx).join("")}[${t.board.join('-')}] ${t.heuristicValue}`);
+  t.children?.forEach((x, i) => printTree(x, [...levels, i === t.children.length-1]));
 }
-board[6] = 'X'
-board[7] = 'O'
-root = new Node(board, true)
-generateTree(root, 2)
-console.log(root.children)
-let copyroot = root
-copyroot.maximizingPlayer = false
+
+function getMove(currentBoard, depth){
+    var root = new Node(currentBoard, false);
+    generateTree(root, depth)
+    val = minimax(root, depth)
+    printTree(root)
+    var nextNode = []
+    for (var i = 0; i < root.children.length; ++i){
+        if(root.children[i].heuristicValue == val){
+            nextNode = root.children[i]
+            break
+        }
+    }
+    
+    for(var i = 0; i < 9;++i){
+        if(nextNode.board[i] != root.board[i]){
+            return i
+        }
+    }
+
+    return null
+}
+ 
+
+// let board = []
+// var n = 9
+// while (n--){
+//     board[n] = ""
+// }
+// board[6] = 'X'
+// board[7] = 'O'
+// root = new Node(board, true)
+// // console.log(caculateHeuristicVal(root))
+// generateTree(root, 2)
+// minimax(root, 2)
+
+// let copyroot = root
+// copyroot.maximizingPlayer = false
+// printTree(root)

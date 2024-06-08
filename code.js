@@ -3,6 +3,18 @@ const PLAYER_TWO_SYMBOL = 'O'
 const VS_AI = 1
 const VS_FRIEND = 2
 
+var extern =(url)=> {           // load extern javascript
+    let scr = $.extend({}, {
+        dataType: 'script',
+        cache: true,
+        url: url
+    });
+    return $.ajax(scr);
+}
+function ext(file, func) {
+    extern(file).done(func);    // calls a function from an extern javascript file
+}
+
 class TicTacToeGame{
     start(){
         // create an empty board
@@ -11,6 +23,7 @@ class TicTacToeGame{
         while (n--){
             this.board[n] = ""
         }
+
         // draw the board to the DOM
         this.drawBoard()
         // 
@@ -26,6 +39,7 @@ class TicTacToeGame{
         while (n--){
             this.board[n] = ""
         }
+
         // draw the board to the DOM
         this.drawBoard()
         // 
@@ -45,6 +59,7 @@ class TicTacToeGame{
             let cellElement = document.createElement("div")
             cellElement.id = index;
             cellElement.classList.add('square')
+            cellElement.innerHTML = cell
             gameBoard.appendChild(cellElement)
 
         })
@@ -58,7 +73,12 @@ class TicTacToeGame{
         else{
             if(this.executeMove(event.target.id))
                 if (!this.checkEndGameCondition())
-                    this.moveRandom()
+                    ext('./agent.js',()=> {         
+                        var index = getMove(this.board, 2)
+                        console.log(index)
+                        this.executeMove(index)
+                    }); 
+                    
         }
     }
 
